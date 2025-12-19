@@ -7,7 +7,7 @@ interface TranscriptionResultViewProps {
   onReset: () => void;
 }
 
-const CopyButton: React.FC<{ text: string }> = ({ text }) => {
+const CopyButton: React.FC<{ text: string; primary?: boolean }> = ({ text, primary }) => {
   const [copied, setCopied] = useState(false);
 
   const handleCopy = () => {
@@ -19,94 +19,99 @@ const CopyButton: React.FC<{ text: string }> = ({ text }) => {
   return (
     <button 
       onClick={handleCopy}
-      className={`flex items-center space-x-2 px-3 py-1.5 rounded-lg text-xs font-bold transition-all border ${
-        copied ? 'bg-[#ED9A64] text-white border-[#ED9A64]' : 'bg-white text-[#0D474F] border-[#557E8344] hover:bg-[#FFEFE4]'
+      className={`btn-shine flex items-center space-x-2 px-5 py-2.5 rounded-xl text-[10px] font-black uppercase tracking-widest transition-all ${
+        copied 
+          ? 'bg-[#ED9A64] text-white shadow-[0_10px_20px_rgba(237,154,100,0.3)]' 
+          : primary 
+            ? 'bg-[#0D474F] text-white shadow-[0_10px_20px_rgba(13,71,79,0.2)]'
+            : 'bg-white/80 text-[#0D474F] border border-[#557E8322] hover:bg-white shadow-sm'
       }`}
     >
-      {copied ? (
-        <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" /></svg><span>Copiado!</span></>
-      ) : (
-        <><svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 16H6a2 2 0 01-2-2V6a2 2 0 012-2h8a2 2 0 012 2v2m-6 12h8a2 2 0 002-2v-8a2 2 0 00-2-2h-8a2 2 0 00-2 2v8a2 2 0 002 2z" /></svg><span>Copiar</span></>
-      )}
+      {copied ? 'Copiado' : 'Copiar'}
     </button>
   );
 };
 
 export const TranscriptionResultView: React.FC<TranscriptionResultViewProps> = ({ result, onReset }) => {
   return (
-    <div className="space-y-10 animate-in fade-in slide-in-from-bottom-6 duration-700">
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-        <div>
-          <span className="text-xs font-bold uppercase tracking-widest text-[#ED9A64] mb-2 block">Processamento concluído</span>
-          <h2 className="text-4xl font-black text-[#0D474F]">{result.title}</h2>
-          <p className="text-[#557E83] mt-2 font-medium">Detectamos: <span className="bg-[#ED9A64]22 px-2 py-0.5 rounded text-[#0D474F] font-bold">{result.language}</span></p>
+    <div className="space-y-16 animate-in fade-in slide-in-from-bottom-12 duration-1000 pb-20">
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-10">
+        <div className="max-w-2xl">
+          <div className="flex items-center space-x-3 mb-4">
+             <span className="bg-[#ED9A64] text-white text-[9px] font-black px-3 py-1 rounded-full uppercase tracking-widest">
+                {result.language}
+             </span>
+             <span className="text-[#557E83] text-[9px] font-black uppercase tracking-widest opacity-60">
+                Processamento Concluído
+             </span>
+          </div>
+          <h2 className="text-5xl md:text-6xl font-black text-[#0D474F] tracking-tight leading-none italic">
+             {result.title}
+          </h2>
         </div>
         <button 
           onClick={onReset}
-          className="px-8 py-3 bg-[#0D474F] text-white rounded-2xl hover:bg-[#557E83] transition-all font-bold shadow-lg"
+          className="btn-shine px-10 py-5 bg-[#0D474F] text-white rounded-[1.5rem] hover:bg-[#1a5f68] transition-all font-black text-xs uppercase tracking-[0.2em] shadow-[0_20px_40px_-10px_rgba(13,71,79,0.35)]"
         >
-          Nova Transcrição
+          Novo Projeto
         </button>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
-        <div className="lg:col-span-2 space-y-10">
-          <section className="card-panel p-10 custom-shadow">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#0D474F] flex items-center">
-                <span className="w-2.5 h-8 bg-[#ED9A64] rounded-full mr-4"></span>
-                Resumo Executivo
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-10">
+        <div className="lg:col-span-8 space-y-12">
+          <section className="premium-card p-12 relative overflow-hidden">
+            <div className="absolute top-0 right-0 w-32 h-32 bg-[#ED9A6408] rounded-full -mr-16 -mt-16 blur-3xl"></div>
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-2xl font-black text-[#0D474F] tracking-tight italic">
+                Resumo <span className="text-[#ED9A64]">Executivo</span>
               </h3>
-              <CopyButton text={result.summary} />
+              <CopyButton text={result.summary} primary />
             </div>
-            <p className="text-[#313131] leading-relaxed text-lg font-medium">
+            <p className="text-[#313131] leading-relaxed text-xl font-medium tracking-tight">
               {result.summary}
             </p>
           </section>
 
-          <section className="card-panel p-10 custom-shadow">
-            <div className="flex justify-between items-center mb-6">
-              <h3 className="text-xl font-bold text-[#0D474F] flex items-center">
-                <span className="w-2.5 h-8 bg-[#0D474F] rounded-full mr-4"></span>
-                Transcrição Íntegra
+          <section className="premium-card p-12">
+            <div className="flex justify-between items-center mb-10">
+              <h3 className="text-2xl font-black text-[#0D474F] tracking-tight italic">
+                Transcrição <span className="opacity-30">Íntegra</span>
               </h3>
               <CopyButton text={result.fullTranscription} />
             </div>
-            <div className="bg-[#FFEFE4] p-8 rounded-2xl border border-[#557E8322] max-h-[600px] overflow-y-auto">
-              <p className="text-[#313131] whitespace-pre-wrap leading-loose text-base">
+            <div className="bg-[#FFEFE444] p-10 rounded-3xl border border-white/50 max-h-[700px] overflow-y-auto custom-scrollbar">
+              <p className="text-[#313131] whitespace-pre-wrap leading-loose text-lg font-medium tracking-tight opacity-90">
                 {result.fullTranscription}
               </p>
             </div>
           </section>
         </div>
 
-        <div className="space-y-10">
-          <section className="card-panel p-8 border-l-8 border-l-[#ED9A64] custom-shadow">
-            <h3 className="text-lg font-bold mb-6 text-[#0D474F] flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 text-[#ED9A64]" viewBox="0 0 20 20" fill="currentColor"><path fillRule="evenodd" d="M11.3 1.046A1 1 0 0112 2v5h4a1 1 0 01.82 1.573l-7 10A1 1 0 018 18v-5H4a1 1 0 01-.82-1.573l7-10a1 1 0 011.12-.38z" clipRule="evenodd" /></svg>
-              Tópicos Principais
+        <div className="lg:col-span-4 space-y-10">
+          <section className="premium-card p-10 border-t-4 border-[#ED9A64]">
+            <h3 className="text-xl font-black mb-8 text-[#0D474F] flex items-center italic">
+              Key Topics
             </h3>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex flex-wrap gap-2">
               {result.keyTopics.map((topic, idx) => (
-                <span key={idx} className="px-4 py-2 bg-[#0D474F] text-white text-xs font-bold rounded-xl shadow-sm">
+                <span key={idx} className="px-4 py-2 bg-white text-[#0D474F] text-[10px] font-black rounded-xl border border-[#557E8311] shadow-sm uppercase tracking-wider">
                   {topic}
                 </span>
               ))}
             </div>
           </section>
 
-          <section className="card-panel p-8 border-l-8 border-l-[#0D474F] custom-shadow">
-            <h3 className="text-lg font-bold mb-6 text-[#0D474F] flex items-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 mr-3 text-[#0D474F]" viewBox="0 0 20 20" fill="currentColor"><path d="M17.414 2.586a2 2 0 00-2.828 0L7 10.172V13h2.828l7.586-7.586a2 2 0 000-2.828z" /><path fillRule="evenodd" d="M2 6a2 2 0 012-2h4a1 1 0 010 2H4v10h10v-4a1 1 0 112 0v4a2 2 0 01-2 2H4a2 2 0 01-2-2V6z" clipRule="evenodd" /></svg>
-              Checklist de Ação
+          <section className="premium-card p-10 bg-[#0D474F] text-white border-none shadow-[0_30px_60px_-15px_rgba(13,71,79,0.4)]">
+            <h3 className="text-xl font-black mb-8 italic flex items-center">
+              Action Items
             </h3>
-            <ul className="space-y-4">
+            <ul className="space-y-6">
               {result.actionItems.map((item, idx) => (
-                <li key={idx} className="flex items-start text-sm text-[#313131] font-medium leading-snug">
-                  <span className="mr-3 mt-1 w-5 h-5 flex items-center justify-center bg-[#ED9A64] text-white rounded-full shrink-0 text-[10px] font-bold">
+                <li key={idx} className="flex items-start text-sm font-medium leading-relaxed group">
+                  <span className="mr-4 w-6 h-6 flex items-center justify-center bg-[#ED9A64] text-white rounded-lg shrink-0 text-[10px] font-black">
                     {idx + 1}
                   </span>
-                  {item}
+                  <span className="opacity-90 group-hover:opacity-100 transition-opacity">{item}</span>
                 </li>
               ))}
             </ul>
