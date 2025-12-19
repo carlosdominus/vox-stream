@@ -15,7 +15,6 @@ const App: React.FC = () => {
   const [progressLabel, setProgressLabel] = useState("");
   const intervalRef = useRef<number | null>(null);
 
-  // Formata tamanho do arquivo para exibição
   const formatFileSize = (bytes: number) => {
     if (bytes === 0) return '0 Bytes';
     const k = 1024;
@@ -24,61 +23,61 @@ const App: React.FC = () => {
     return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
   };
 
-  // Atualiza labels baseado no progresso
+  // Centralização da lógica de labels (fora de qualquer função aninhada)
   useEffect(() => {
-    if (status === AppStatus.PROCESSING || status === AppStatus.UPLOADING) {
-      if (progress > 90) setProgressLabel("Finalizando estruturação dos dados...");
-      else if (progress > 70) setProgressLabel("O Gemini está analisando trechos complexos...");
-      else if (progress > 40) setProgressLabel("Escutando conteúdo e extraindo contexto...");
-      else if (progress > 15) setProgressLabel("IA processando os pacotes de mídia...");
-      else setProgressLabel("Iniciando processamento ultra-rápido...");
+    if (status === AppStatus.UPLOADING || status === AppStatus.PROCESSING) {
+      if (progress > 95) setProgressLabel("Finalizando estruturação dos dados...");
+      else if (progress > 75) setProgressLabel("O Gemini está analisando trechos complexos...");
+      else if (progress > 50) setProgressLabel("Extraindo falas e identificando contexto...");
+      else if (progress > 25) setProgressLabel("IA processando os pacotes de mídia...");
+      else setProgressLabel("Preparando análise inteligente...");
     }
   }, [progress, status]);
 
   const handleFileSelect = async (data: FileData) => {
+    // Limpeza de estado prévia
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
     setError(null);
     setFileData(data);
     setStatus(AppStatus.UPLOADING);
     setProgress(5);
     
     const isSmallFile = data.file.size < 5 * 1024 * 1024; // Menos de 5MB
-    const incrementSpeed = isSmallFile ? 150 : 800; // Mais rápido para arquivos pequenos
+    const stepTime = isSmallFile ? 100 : 500; // Muito mais rápido para arquivos pequenos
 
-    // Limpa intervalo anterior se existir
-    if (intervalRef.current) clearInterval(intervalRef.current);
-
-    // Simulação de estágios de progresso adaptativa
+    // Início da simulação de progresso
     intervalRef.current = window.setInterval(() => {
       setProgress((prev) => {
         if (prev >= 98) return 98;
-        // Incrementos maiores para arquivos pequenos
-        const inc = isSmallFile ? (prev > 80 ? 0.5 : 4) : (prev > 80 ? 0.2 : 1.5);
-        return prev + inc;
+        // Incremento dinâmico baseado no tamanho
+        const increment = isSmallFile ? (prev > 80 ? 0.4 : 3) : (prev > 80 ? 0.1 : 0.8);
+        return prev + increment;
       });
-    }, incrementSpeed);
+    }, stepTime);
 
     try {
-      // Chamada direta para a API sem setTimeout artificial
+      // Chamada assíncrona real
       const transcription = await transcribeMedia(data.base64, data.file.type);
       
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      // Sucesso: Finaliza barra e exibe resultado
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
       setProgress(100);
-      setProgressLabel("Concluído!");
+      setProgressLabel("Transcrição concluída!");
       
       setTimeout(() => {
         setResult(transcription);
         setStatus(AppStatus.COMPLETED);
-      }, 300);
+      }, 400);
     } catch (err: any) {
-      if (intervalRef.current) clearInterval(intervalRef.current);
+      if (intervalRef.current) window.clearInterval(intervalRef.current);
       console.error("Erro na transcrição:", err);
-      setError('Falha ao processar arquivo. Tente um formato diferente ou verifique sua conexão.');
+      setError('Ocorreu um erro no processamento. Tente novamente ou use outro arquivo.');
       setStatus(AppStatus.ERROR);
     }
   };
 
   const reset = () => {
-    if (intervalRef.current) clearInterval(intervalRef.current);
+    if (intervalRef.current) window.clearInterval(intervalRef.current);
     setStatus(AppStatus.IDLE);
     setFileData(null);
     setResult(null);
@@ -95,17 +94,17 @@ const App: React.FC = () => {
               Poder <span className="text-[#ED9A64]">Auditivo</span><br/>com Inteligência.
             </h1>
             <p className="text-xl text-[#557E83] max-w-2xl mx-auto leading-relaxed font-medium">
-              Transcreva arquivos de qualquer tamanho instantaneamente. Nossa IA identifica a escala do seu conteúdo para entregar agilidade total.
+              A transcrição mais rápida do mercado. Identificamos o tamanho da sua mídia para entregar resultados com agilidade recorde.
             </p>
           </div>
         )}
 
         {(status === AppStatus.IDLE || status === AppStatus.ERROR) && (
           <div className="space-y-8">
-            <Uploader onFileSelect={handleFileSelect} disabled={status === AppStatus.UPLOADING} />
+            <Uploader onFileSelect={handleFileSelect} disabled={status === AppStatus.UPLOADING || status === AppStatus.PROCESSING} />
             
             {status === AppStatus.ERROR && (
-              <div className="bg-[#ED9A64]11 border-2 border-[#ED9A64] p-6 rounded-3xl flex items-center space-x-4 text-[#0D474F] font-bold animate-bounce">
+              <div className="bg-[#ED9A64]11 border-2 border-[#ED9A64] p-6 rounded-3xl flex items-center space-x-4 text-[#0D474F] font-bold animate-in slide-in-from-top-4 duration-300">
                 <svg className="h-8 w-8 text-[#ED9A64]" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
                 <span>{error}</span>
               </div>
@@ -113,9 +112,9 @@ const App: React.FC = () => {
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-12">
               {[
-                { title: 'Agilidade Inteligente', desc: 'Processamento otimizado baseado no tamanho do arquivo.', icon: '⚡' },
-                { title: 'Qualidade Gemini', desc: 'A precisão da melhor IA do Google para sua mídia.', icon: '💎' },
-                { title: 'Privacidade Total', desc: 'Seus dados são processados e não ficam armazenados.', icon: '🔒' }
+                { title: 'Agilidade Inteligente', desc: 'Sua mídia de 3MB ou 30MB processada no tempo certo.', icon: '⚡' },
+                { title: 'Motor Gemini 3', desc: 'Aproveite o modelo mais recente e capaz do Google.', icon: '💎' },
+                { title: 'Sem Instalação', desc: 'Tudo roda diretamente no seu navegador com total segurança.', icon: '🌐' }
               ].map((f, i) => (
                 <div key={i} className="card-panel p-8 hover:scale-105 transition-transform cursor-default custom-shadow">
                   <div className="text-4xl mb-6">{f.icon}</div>
@@ -142,8 +141,8 @@ const App: React.FC = () => {
                   </div>
                   <p className="text-[#557E83] text-sm font-bold">
                     {fileData && fileData.file.size < 5 * 1024 * 1024 
-                      ? "Arquivo pequeno detectado: processamento acelerado." 
-                      : "Arquivo robusto: análise profunda em andamento..."}
+                      ? "Mídia compacta: priorizando velocidade total." 
+                      : "Conteúdo denso: realizando análise profunda..."}
                   </p>
                 </div>
                 <span className="text-[#ED9A64] font-black text-2xl">{Math.floor(progress)}%</span>
@@ -158,9 +157,9 @@ const App: React.FC = () => {
               </div>
             </div>
             
-            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl">
-               {['Analisando Áudio', 'Limpando Ruídos', 'Identificando Contexto', 'Gerando Texto'].map((step, idx) => (
-                 <div key={idx} className={`p-4 rounded-2xl border ${progress > (idx * 25) ? 'border-[#0D474F] bg-[#0D474F] text-white' : 'border-[#557E8344] text-[#557E83]'} text-center text-xs font-bold transition-all duration-500`}>
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 w-full max-w-2xl opacity-75">
+               {['Mapeamento', 'Processamento', 'Identificação', 'Estruturação'].map((step, idx) => (
+                 <div key={idx} className={`p-4 rounded-2xl border ${progress > (idx * 25) ? 'border-[#0D474F] bg-[#0D474F] text-white shadow-lg' : 'border-[#557E8322] text-[#557E83]'} text-center text-xs font-bold transition-all duration-500`}>
                    {step}
                  </div>
                ))}

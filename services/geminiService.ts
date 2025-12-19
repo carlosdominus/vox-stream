@@ -8,7 +8,9 @@ export async function transcribeMedia(
   mediaBase64: string, 
   mimeType: string
 ): Promise<TranscriptionResult> {
-  const ai = new GoogleGenAI({ apiKey: process.env.API_KEY || '' });
+  // Acesso seguro à API Key
+  const apiKey = typeof process !== 'undefined' ? process.env.API_KEY : '';
+  const ai = new GoogleGenAI({ apiKey: apiKey || '' });
 
   const prompt = `
     Aja como um especialista em transcrição e análise de mídia (áudio/vídeo). 

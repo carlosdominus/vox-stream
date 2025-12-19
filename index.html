@@ -9,6 +9,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        // Shim para evitar erro 'process is not defined' em ambientes de hospedagem puros
+        window.process = window.process || { env: {} };
+    </script>
     <style>
         body {
             font-family: 'Inter', sans-serif;
@@ -28,7 +32,6 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
-        /* Estilização da barra de rolagem */
         ::-webkit-scrollbar {
             width: 8px;
         }
@@ -56,5 +59,6 @@
 </head>
 <body>
     <div id="root"></div>
+    <script type="module" src="./index.tsx"></script>
 </body>
 </html>
